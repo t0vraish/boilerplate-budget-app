@@ -1,58 +1,72 @@
 class Category:
     def __init__(self, name, funds=0) -> None:
         self.ledger = list()
-        self.funds = funds
         self.name = name
+        self.funds = funds
 
-    def deposit(self, amount, description=""):
+    def check_funds(self, amount):
+        return amount <= self.funds
+
+    def get_balance(self):
+        # entry_txt="The current balance is:"
+        return f"Total: {'{:.2f}'.format(self.funds)}"
+
+    def deposit(self, amount, description="Deposit"):
         self.ledger.append({"amount": amount, "description": description})
         self.funds += amount
 
-    def check_funds(self, amount):
-        if amount > self.funds:
+    def withdraw(self, amount, description="Withdraw"):
+        if not self.check_funds(amount):
             return False
-        else:
-            return True
-
-    def withdraw(self, amount, description=""):
-        if not self.check_funds(amount=amount):
-            return False
-        else:
-            self.ledger.append({"amount": -amount, "description": description})
-            self.funds += -amount
-            return True
-
-    def get_balance(self):
-        print(f"The current balance is: {self.funds}")
+        self.deposit(-amount, description)
+        return True
 
     def transfer(self, amount, dest_categ):
-        if not self.check_funds(amount=amount):
-            return False
-        else:
-            self.withdraw(amount=amount, description=f"Transfer to {self.dest_categ}")
-            try:
-                dest_categ.deposit(
-                    amount=amount, description=f"Transfer from {self.name}"
-                )
-                return True
-            except:
-                print("The destination category should be an object of the same class")
-                return False
+        self.withdraw(amount, description=f"Transfer to {dest_categ.name}")
+        dest_categ.deposit(amount=amount, description=f"Transfer from {self.name}")
+        return True
 
-    def __repr__(self) -> str:
-        print(self.name.center(30, "*"))  # ****Food*** 30 chars centered
+    def __str__(self) -> str:
+        def format_amount(amount):
+            return f"{amount:.2f}"
+
+        title = self.name.center(30, "*")  # ****Food*** 30 chars centered
+        main_lst = list()
         for (
             record
         ) in (
             self.ledger
         ):  # printing records and name of transaction left aligned, amount right aligned
-            print(self.name.center(30, "*"))
-
             dscrptn_prntd = record["description"]
             scr_prntd = str("{:.2f}".format(record["amount"]))
+            main_lst.append(f"{dscrptn_prntd.ljust(23)}{scr_prntd.rjust(7)}")
+        main_txt = "\n".join(main_lst)
+        total = self.get_balance()
 
-            print(f"{dscrptn_prntd.ljust(23)}{scr_prntd.rjust(7)}")
+        return "\n".join([title, main_txt, total])
 
 
-def create_spend_chart(self, categories):
-    pass
+def create_spend_chart(categories):
+    for category in categories:
+        pass
+
+
+##SOME INITIAL TESTING FOR THE CLASS##
+# food = Category("Food")
+# food.deposit(1000, "initial deposit")
+# food.withdraw(10.15, "groceries")
+# food.withdraw(15.89, "restaurant and dessert")
+
+# clothing = Category("Clothing")
+# food.transfer(50, clothing)
+# clothing.withdraw(25.55)
+# clothing.withdraw(100)
+
+# auto = Category("Auto")
+# auto.deposit(1000, "initial deposit")
+# auto.transfer(400, food)
+# auto.withdraw(15)
+
+# print(f"{food}\n")
+# print(clothing)
+# print(f"\n{auto}")
